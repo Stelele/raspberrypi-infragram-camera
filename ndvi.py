@@ -2,7 +2,7 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 
-image = Image.open("image.jpg")
+image = Image.open("image9.jpg")
 imageData = np.asarray(image)
 
 
@@ -22,7 +22,7 @@ for row in range(imageData.shape[0]):
 fig, ax = plt.subplots(1,1)
 im = ax.imshow(outputImage)
 fig.colorbar(im)
-plt.savefig("output3.jpg")
+plt.savefig("output7.jpg")
 
 
 
