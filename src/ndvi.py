@@ -1,28 +1,37 @@
 from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
-image = Image.open("image9.jpg")
-imageData = np.asarray(image)
+class NDVI:
+
+    def __init__(self) -> None:
+        self.imageWidth = 1024
+        self.imageHeight = 768
+        self.outputImageDirectory = "/".join(os.path.abspath("output/images/processed/_empty").split("/")[:-1])
+
+    def analyzeImage(self, inputImage, outputFileName):
+        imageFile = open(inputImage, "r+b")
+        image = np.fromfile(imageFile, dtype=np.uint8).reshape((self.imageHeight, self.imageWidth, 3))
+
+        redChannel = np.array(image[:, :, 0].tolist())
+        blueChannel = np.array(image[:, :, 2].tolist())
+        outputImage = (redChannel - blueChannel) / (redChannel + blueChannel)
 
 
-#row, col = np.mgrid[0:imageData.shape[0], 0:imageData.shape[1]]
+        fig, ax = plt.subplots(1,1)
+        im = ax.imshow(outputImage)
+        fig.colorbar(im)
+        plt.savefig(f"{self.outputImageDirectory}/{outputFileName}.jpg")
 
-outputImage = np.zeros((imageData.shape[0], imageData.shape[1]))
+       
 
-#print("test")
 
-for row in range(imageData.shape[0]):
-    for col in range(imageData.shape[1]):
-        red = int(imageData[row][col][0])
-        blue = int(imageData[row][col][2])
+if __name__ == "__main__":
+    test = NDVI()
+    rawImageDirectory = "/".join(os.path.abspath("output/images/raw/_empty").split("/")[:-1])
 
-        outputImage[row][col] = (red - blue)/(red + blue)
-
-fig, ax = plt.subplots(1,1)
-im = ax.imshow(outputImage)
-fig.colorbar(im)
-plt.savefig("output7.jpg")
+    test.analyzeImage(f"{rawImageDirectory}/test.rgb", "testOutput")
 
 
 

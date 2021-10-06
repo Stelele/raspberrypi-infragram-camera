@@ -7,14 +7,14 @@ class Camera:
 
     def __init__(self, mode=0) -> None:
         self.camera = PiCamera()
-        self.camera_resolution = (1024, 768)
+        self.cameraResolution = (1024, 768)
 
     def captureRawImage(self, outputDirectory, outputFileName):
-        self.camera.resolution = self.camera_resolution
+        self.camera.resolution = self.cameraResolution
         self.camera.capture(f"{outputDirectory}/{outputFileName}.rgb", "rgb")
 
     def convertRawToJPG(self, inputFile, outputDirectory, outputFileName):
-        imageResolution = "x".join(map(str,self.camera_resolution))
+        imageResolution = "x".join(map(str,self.cameraResolution))
         os.system(f"convert -size \"{imageResolution}\" -depth 8 -crop \"{imageResolution}\" {inputFile} {outputDirectory}/{outputFileName}.jpg")
 
 if __name__ == "__main__":
