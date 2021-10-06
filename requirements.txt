@@ -1,3 +1,6 @@
 numpy
 matplotlib
 Pillow
+picamera
+pyserial
+rpi.gpio

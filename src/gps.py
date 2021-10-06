@@ -5,6 +5,16 @@ import serial
 class GPS:
 
     def __init__(self) -> None:
+
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setup(7, GPIO.OUT)
+
+        while True:
+            GPIO.output(7, GPIO.LOW)
+            time.sleep(4)
+            GPIO.output(7, GPIO.HIGH)
+            break
+
         self.ser = serial.Serial("/dev/serial0", 115200)
         W_buff = [b"AT+CGNSPWR=1\r\n", b"AT+CGNSSEQ=\"RMC\"\r\n", b"AT+CGNSINF\r\n", b"AT+CGNSURC=2\r\n", b"AT+CGNSTST=1\r\n"]
         self.ser.write(W_buff[0])
@@ -51,8 +61,15 @@ class GPS:
         time.sleep(0.5)
         self.ser.write(b"AT+CGNSPWR=0\r\n")
         self.ser.flushInput()
+        time.sleep(1)
 
+        while True:
+            GPIO.output(7, GPIO.LOW)
+            time.sleep(4)
+            GPIO.output(7, GPIO.HIGH)
+            break
 
+        GPIO.cleanup()
 
 
 if __name__ == "__main__":
