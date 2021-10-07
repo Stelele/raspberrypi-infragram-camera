@@ -23,15 +23,43 @@ class NDVI:
         self.imageWhiteBalanceValues["g"] = int(whiteImage[:,:,1].max())
         self.imageWhiteBalanceValues["b"] = int(whiteImage[:,:,2].max())
 
-    def analyzeImage(self, inputImage, outputFileName):
+    def analyzeImage(self, inputImage, outputFileName, mode=0):
         imageFile = open(inputImage, "r+b")
         image = np.fromfile(imageFile, dtype=np.uint8).reshape((self.imageHeight, self.imageWidth, 3))
 
-        redChannel = (255 * np.array(image[:, :, 0].tolist()) / self.imageWhiteBalanceValues["r"]).clip(0,255)
-        blueChannel = (255 * np.array(image[:, :, 2].tolist())/ self.imageWhiteBalanceValues["b"]).clip(0,255)
-        
-        outputImage = (redChannel - blueChannel) / (redChannel + blueChannel)
+        redChannel   = np.array(image[:, :, 0].tolist())
+        greenChannel = np.array(image[:, :, 1].tolist())
+        blueChannel  = np.array(image[:, :, 2].tolist())
+        outputImage  = np.zeros((self.imageHeight, self.imageWidth))
 
+        if mode == 0:
+            redChannel  = (255 * redChannel   / self.imageWhiteBalanceValues["r"]).clip(0,255)
+            blueChannel = (255 * blueChannel / self.imageWhiteBalanceValues["b"]).clip(0,255)
+            outputImage = (redChannel - blueChannel) / (redChannel + blueChannel)
+
+        elif mode == 1:
+            redChannel   /= redChannel.max()
+            greenChannel /= greenChannel.max()
+            blueChannel  /= blueChannel.max()
+
+            redChannel   = np.power((redChannel   + 0.055)/1.055,2.4)
+            greenChannel = np.power((greenChannel + 0.055)/1.055,2.4)
+            blueChannel  = np.power((blueChannel  + 0.055)/1.055, 2.4)
+
+            transformation = np.array([[ -0.6168006001,  3.0321120793, -1.4276396748, 0.0494551008], \
+                                        [-2.2981037998,  4.6453775652, -1.0628372695, 0.0485266687], \
+                                        [-1.1373381041,  1.5107568513,  2.1166395585, 0.047374911], \
+                                        [ 0.6987241741,  0.5488395299,  0.1258244845, 0.2757884897]])
+
+            newImage = np.zeros((redChannel.shape[0], redChannel.shape[1], 4))
+
+            for i in range(4):
+                newImage[:,:,i] = transformation[i][0] * redChannel + transformation[i][1] * greenChannel + transformation[i][2] * blueChannel + transformation[i][3]
+
+            outputImage = (newImage[:,:,0] - newImage[:,:,3])/(newImage[:,:,0] + newImage[:,:,3])
+        
+        else:
+            outputImage = ((1.664 * blueChannel)/(0.953 * redChannel)) - 1
 
         fig, ax = plt.subplots(1,1)
         im = ax.imshow(outputImage)
@@ -46,7 +74,7 @@ if __name__ == "__main__":
     rawImageDirectory = "/".join(os.path.abspath("output/images/raw/_empty").split("/")[:-1])
 
     test.calibrate()
-    test.analyzeImage(f"{rawImageDirectory}/test4.rgb", "testOutput4")
+    test.analyzeImage(f"{rawImageDirectory}/test1m3.rgb", "testOutput1m3",3)
 
 
 

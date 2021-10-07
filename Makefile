@@ -5,6 +5,7 @@ setup:
 	
 
 clean:
+	rm -rf src/__pycache__
 	find . -name "*.rgb" -type f -delete
 	find . -name "*.jpg" -type f -delete
-	find . -name "*.pyc" -type f -delete
+	find . -name "*.png" -type f -delete

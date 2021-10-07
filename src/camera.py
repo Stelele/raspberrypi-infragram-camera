@@ -23,7 +23,7 @@ if __name__ == "__main__":
     rawImageDirectory = "/".join(os.path.abspath("output/images/raw/_empty").split("/")[:-1])
     jpgImageDirectory = "/".join(os.path.abspath("output/images/jpg/_empty").split("/")[:-1])
 
-    outputName = "test4"
+    outputName = "test1m3"
     test.captureRawImage(rawImageDirectory, outputName)
 
     test.convertRawToJPG(f"{rawImageDirectory}/{outputName}.rgb", jpgImageDirectory, outputName)
