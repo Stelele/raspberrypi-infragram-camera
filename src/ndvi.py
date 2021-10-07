@@ -27,8 +27,9 @@ class NDVI:
         imageFile = open(inputImage, "r+b")
         image = np.fromfile(imageFile, dtype=np.uint8).reshape((self.imageHeight, self.imageWidth, 3))
 
-        redChannel = np.array(image[:, :, 0].tolist())
-        blueChannel = np.array(image[:, :, 2].tolist())
+        redChannel = (255 * np.array(image[:, :, 0].tolist()) / self.imageWhiteBalanceValues["r"]).clip(0,255)
+        blueChannel = (255 * np.array(image[:, :, 2].tolist())/ self.imageWhiteBalanceValues["b"]).clip(0,255)
+        
         outputImage = (redChannel - blueChannel) / (redChannel + blueChannel)
 
 
@@ -45,7 +46,7 @@ if __name__ == "__main__":
     rawImageDirectory = "/".join(os.path.abspath("output/images/raw/_empty").split("/")[:-1])
 
     test.calibrate()
-    test.analyzeImage(f"{rawImageDirectory}/test.rgb", "testOutput")
+    test.analyzeImage(f"{rawImageDirectory}/test4.rgb", "testOutput4")
 
 
 

@@ -7,3 +7,4 @@ setup:
 clean:
 	find . -name "*.rgb" -type f -delete
 	find . -name "*.jpg" -type f -delete
+	find . -name "*.pyc" -type f -delete
