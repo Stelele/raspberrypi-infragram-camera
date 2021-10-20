@@ -5,7 +5,7 @@ import os
 
 class Camera:
 
-    def __init__(self, mode=0) -> None:
+    def __init__(self) -> None:
         self.camera = PiCamera()
         self.cameraResolution = (1024, 768)
         self.videoRecordingStarted = False

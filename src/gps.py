@@ -12,7 +12,6 @@ class GPS:
         self.positionFixed = False
         self.latitude = ""
         self.longitude = ""
-        self.runStart = False
 
         while True:
             GPIO.output(7, GPIO.LOW)

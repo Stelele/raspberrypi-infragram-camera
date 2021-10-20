@@ -29,7 +29,6 @@ class NDVI:
         outputImage = self.performNDVIOperation(image, mode=mode, format="RGB")
 
         fig, ax = plt.subplots(1,1)
-        #im = ax.imshow(outputImage, vmin=0,vmax=1, cmap="seismic")
         im = ax.imshow(outputImage)
         fig.colorbar(im)
         plt.savefig(f"{self.outputImageDirectory}/{outputFileName}.jpg")
