@@ -9,6 +9,11 @@ class GPS:
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(7, GPIO.OUT)
 
+        self.positionFixed = False
+        self.latitude = ""
+        self.longitude = ""
+        self.runStart = False
+
         while True:
             GPIO.output(7, GPIO.LOW)
             time.sleep(4)
@@ -27,7 +32,7 @@ class GPS:
                 data += self.ser.read(self.ser.inWaiting()).decode("utf-8")
 
             if data != "":
-                print(data)
+                #print(data)
                 time.sleep(0.5)
 
                 if num < len(W_buff):
@@ -39,10 +44,12 @@ class GPS:
                 if num >= len(W_buff) + 5:
                     break
 
+
+
     def getData(self):
 
         data = ""
-
+        self.runStart = True
         while True:
             while self.ser.inWaiting() > 0:
                 data += self.ser.read(self.ser.inWaiting()).decode("utf-8")
@@ -52,7 +59,22 @@ class GPS:
                 
                 if startLocation > -1:
                     endlocation = data.find("\n", startLocation+1) + 1
-                    print(data[startLocation:endlocation])
+                    
+                    gpsData = data[startLocation:endlocation].split(",")
+
+                    if(len(gpsData) > 3 and gpsData[2] == "A"):
+                        self.positionFixed = True
+                        lat = float(gpsData[3][:2]) + (float(gpsData[3][2:])/60)
+                        self.latitude = f"{lat},{gpsData[4]}"
+                        long = float(gpsData[5][:3]) + (float(gpsData[5][3:])/60)
+                        self.longitude = f"{long},{gpsData[6]}"
+
+                        print(f"latitude: {self.latitude}\nlongitude: {self.longitude}\n")
+                        break
+
+                    else:
+                        self.positionFixed = False
+                        print("Trying to fix data")
 
                 time.sleep(0.5)
                 data = ""
@@ -72,13 +94,21 @@ class GPS:
         GPIO.cleanup()
 
 
+
+    def stop(self):
+        self.runStart = False
+        self.endConnection()
+
+
 if __name__ == "__main__":
 
     test = GPS()
 
-    try:
-        while True:
-            test.getData()        
+    for i in range(10):
+        print(f"============Iteration {i}===============")
+        test.getData()
+        print("==========================================")
+        
 
-    except KeyboardInterrupt:
-        test.endConnection()
+    test.endConnection()
+

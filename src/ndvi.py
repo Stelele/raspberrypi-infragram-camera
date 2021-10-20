@@ -4,14 +4,17 @@ from time import sleep
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import ffmpeg
 
 class NDVI:
 
     def __init__(self) -> None:
-        self.imageWidth = 1024
+        self.imageWidth  = 1024
         self.imageHeight = 768
-        self.outputImageDirectory = "/".join(os.path.abspath("output/images/processed/_empty").split("/")[:-1])
-        self.rawImageDirectory = "/".join(os.path.abspath("output/images/raw/_empty").split("/")[:-1])
+        self.outputImageDirectory  = "/".join(os.path.abspath("output/images/processed/_empty").split("/")[:-1])
+        self.rawImageDirectory     = "/".join(os.path.abspath("output/images/raw/_empty").split("/")[:-1])
+        self.rawVideoDirectory     =  "/".join(os.path.abspath("output/videos/raw/_empty").split("/")[:-1])
+        self.outputVideoDirectory  = "/".join(os.path.abspath("output/videos/processed/_empty").split("/")[:-1])
 
     def analyzeImage(self, inputImage, outputFileName, mode=0):
 
@@ -22,9 +25,59 @@ class NDVI:
             iImage = Image.open(inputImage)
             image = np.asarray(iImage)
 
-        redChannel   = np.array(image[:, :, 0].tolist())
-        greenChannel = np.array(image[:, :, 1].tolist())
-        blueChannel  = np.array(image[:, :, 2].tolist())
+        
+        outputImage = self.performNDVIOperation(image, mode=mode, format="RGB")
+
+        fig, ax = plt.subplots(1,1)
+        #im = ax.imshow(outputImage, vmin=0,vmax=1, cmap="seismic")
+        im = ax.imshow(outputImage)
+        fig.colorbar(im)
+        plt.savefig(f"{self.outputImageDirectory}/{outputFileName}.jpg")
+
+    def analyzeVideo(self, inputVideo, outputFileName, mode=0):
+        probe = ffmpeg.probe(inputVideo)
+        videoStream = next((stream for stream in probe["streams"] if stream["codec_type"] == "video"), None)
+        width = int(videoStream["width"])
+        height = int(videoStream["height"])
+
+        out, _ = (
+            ffmpeg
+            .input(inputVideo)
+            .output("pipe:", format="rawvideo", pix_fmt="rgb24")
+            .run(capture_stdout=True)
+        )
+
+        video = (
+            np
+            .frombuffer(out, np.uint8)
+            .reshape((-1, height, width, 3))
+        )
+
+        fig, ax = plt.subplots(1,1)
+        for i in range(video.shape[0]):
+            outputImage = self.performNDVIOperation(video[i])
+
+            
+            im = ax.imshow(outputImage)
+
+            if i == 0:
+                fig.colorbar(im)
+
+            plt.savefig(f"{self.outputVideoDirectory}/{i}.jpg")
+
+        
+    def createVideo(self):
+        (
+            ffmpeg
+            .input(f"{self.outputVideoDirectory}/*.jpg", pattern_type="glob", framerate=10)
+            .output(f"{self.outputVideoDirectory}/output.mp4")
+            .run()
+        )
+
+    def performNDVIOperation(self, inputArray, mode=0, format="RGB"):
+        redChannel   = np.array(inputArray[:, :, 0 if format == "RGB" else 2].tolist())
+        greenChannel = np.array(inputArray[:, :, 1].tolist())
+        blueChannel  = np.array(inputArray[:, :, 2 if format == "RGB" else 1].tolist())
         outputImage  = np.zeros((self.imageHeight, self.imageWidth))
 
         if mode == 0:
@@ -63,30 +116,32 @@ class NDVI:
         #normalize data
         outputImage = (outputImage - outputImage.min()) / (outputImage.max() - outputImage.min())
 
-        fig, ax = plt.subplots(1,1)
-        #im = ax.imshow(outputImage, vmin=0,vmax=1, cmap="seismic")
-        im = ax.imshow(outputImage)
-        fig.colorbar(im)
-        plt.savefig(f"{self.outputImageDirectory}/{outputFileName}.jpg")
-
-       
-
+        return outputImage
 
 if __name__ == "__main__":
     test = NDVI()
     rawImageDirectory = "/".join(os.path.abspath("output/images/raw/_empty").split("/")[:-1])
     jpgImageDirectory = "/".join(os.path.abspath("output/images/jpg/_empty").split("/")[:-1])
-    NDVIMode = 0
-    baseName = "rgbBluecalibration1"
-    exposure = 2
-    fileName = baseName + "_" + str(exposure).replace(".","_")
-    #test.calibrate()
+    rawVideoDirectory = "/".join(os.path.abspath("output/videos/raw/_empty").split("/")[:-1])
 
-    if NDVIMode == 0:
-        test.analyzeImage(f"{rawImageDirectory}/{fileName}.rgb", fileName + "_m"+str(NDVIMode))
+    analyzeImage = False
+
+    if analyzeImage:
+        NDVIMode = 0
+        baseName = "rgbBluecalibration1"
+        exposure = 2
+        fileName = baseName + "_" + str(exposure).replace(".","_")
+        #test.calibrate()
+
+        if NDVIMode == 0:
+            test.analyzeImage(f"{rawImageDirectory}/{fileName}.rgb", fileName + "_m"+str(NDVIMode))
+        else:
+            test.analyzeImage(f"{jpgImageDirectory}/{fileName}.jpg", fileName + "_m"+str(NDVIMode),NDVIMode)
+
     else:
-        test.analyzeImage(f"{jpgImageDirectory}/{fileName}.jpg", fileName + "_m"+str(NDVIMode),NDVIMode)
 
+        #test.analyzeVideo(f"{rawVideoDirectory}/smallBluecalibration.mp4", "test")
+        test.createVideo()
     
 
 
