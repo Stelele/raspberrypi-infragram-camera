@@ -10,8 +10,8 @@ class GPS:
         GPIO.setup(7, GPIO.OUT)
 
         self.positionFixed = False
-        self.latitude = ""
-        self.longitude = ""
+        self.latitude = {}
+        self.longitude = {}
 
         while True:
             GPIO.output(7, GPIO.LOW)
@@ -63,12 +63,22 @@ class GPS:
 
                     if(len(gpsData) > 3 and gpsData[2] == "A"):
                         self.positionFixed = True
-                        lat = float(gpsData[3][:2]) + (float(gpsData[3][2:])/60)
-                        self.latitude = f"{lat},{gpsData[4]}"
-                        long = float(gpsData[5][:3]) + (float(gpsData[5][3:])/60)
-                        self.longitude = f"{long},{gpsData[6]}"
 
-                        print(f"latitude: {self.latitude}\nlongitude: {self.longitude}\n")
+                        lat = float(gpsData[3][:2]) + (float(gpsData[3][2:])/60)
+                        self.latitude["hours"] = lat // 60
+                        latMinutes = lat % 60
+                        self.latitude["minutes"] = latMinutes // 60
+                        self.latitude["seconds"] = latMinutes % 60
+                        self.latitude["ref"] = gpsData[4]
+
+
+                        long = float(gpsData[5][:3]) + (float(gpsData[5][3:])/60)
+                        self.longitude["hours"] = long // 60
+                        longMinutes = long % 60
+                        self.longitude["minutes"] = longMinutes // 60
+                        self.longitude["seconds"] = longMinutes % 60
+                        self.longitude["ref"] = gpsData[6]
+                        
                         break
 
                     else:
