@@ -13,30 +13,29 @@ class Runner(Camera, GPS, NDVI):
 
     def tagNDVIImage(self, inputImage):
         print("getting GPS data")
-        #self.getData()
-        self.latitude = {
-            "hours": 33.0,
-            "minutes": 23,
-            "seconds":1.83,
-            "ref":"S"
-        }
-        self.longitude = {
-            "hours": 18.0,
-            "minutes": 23,
-            "seconds":1.83,
-            "ref":"E"
-        }
+        self.getData()
+        # self.latitude = {
+        #     "degrees": 33.0,
+        #     "minutes": 23,
+        #     "seconds":1.83,
+        #     "ref":"S"
+        # }
+        # self.longitude = {
+        #     "degrees": 18.0,
+        #     "minutes": 23,
+        #     "seconds":1.83,
+        #     "ref":"E"
+        # }
 
-        self.positionFixed = True
+        # self.positionFixed = True
 
         with open(inputImage, "rb") as img:
             fileImage = Image(img)
 
-        fileImage.gps_latitude = (self.latitude["hours"], self.latitude["minutes"], self.latitude["seconds"])
+        fileImage.gps_latitude = (self.latitude["degrees"], self.latitude["minutes"], self.latitude["seconds"])
         fileImage.gps_latitude_ref = self.latitude["ref"]
-        fileImage.gps_longitude = (self.longitude["hours"], self.longitude["minutes"], self.longitude["seconds"])
+        fileImage.gps_longitude = (self.longitude["degrees"], self.longitude["minutes"], self.longitude["seconds"])
         fileImage.gps_longitude_ref = self.longitude["ref"] 
-
 
         with open(inputImage, "wb") as img:
             img.write(fileImage.get_file())  

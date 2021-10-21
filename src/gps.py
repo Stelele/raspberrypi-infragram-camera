@@ -65,18 +65,18 @@ class GPS:
                         self.positionFixed = True
 
                         lat = float(gpsData[3][:2]) + (float(gpsData[3][2:])/60)
-                        self.latitude["hours"] = lat // 60
-                        latMinutes = lat % 60
-                        self.latitude["minutes"] = latMinutes // 60
-                        self.latitude["seconds"] = latMinutes % 60
+                        self.latitude["degrees"] = float(int(lat))
+                        latMinutes = (lat  - self.latitude["degrees"]) * 60
+                        self.latitude["minutes"] = float(int(latMinutes))
+                        self.latitude["seconds"] = (latMinutes - self.latitude["minutes"]) * 60
                         self.latitude["ref"] = gpsData[4]
 
 
                         long = float(gpsData[5][:3]) + (float(gpsData[5][3:])/60)
-                        self.longitude["hours"] = long // 60
-                        longMinutes = long % 60
-                        self.longitude["minutes"] = longMinutes // 60
-                        self.longitude["seconds"] = longMinutes % 60
+                        self.longitude["degrees"] = float(int(long))
+                        longMinutes = (long - self.longitude["degrees"]) * 60
+                        self.longitude["minutes"] = float(int(longMinutes))
+                        self.longitude["seconds"] = (longMinutes - self.longitude["minutes"]) * 60
                         self.longitude["ref"] = gpsData[6]
                         
                         break

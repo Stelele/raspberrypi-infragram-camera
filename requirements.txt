@@ -6,3 +6,5 @@ pyserial
 rpi.gpio
 ffmpeg-python
 exif
+flask
+pyngrok

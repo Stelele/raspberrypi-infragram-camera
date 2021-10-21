@@ -1,9 +1,9 @@
 venv
 .vscode
 **/__pycache__
-**/*.jpg
-**/*.data
-**/*.rgb
-**/*.png
-**/*.h264
-**/*.mp4
+output/**/*.jpg
+output/**/*.data
+output/**/*.rgb
+output/**/*.png
+output/**/*.h264
+output/**/*.mp4
