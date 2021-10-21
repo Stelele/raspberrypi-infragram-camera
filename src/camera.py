@@ -1,5 +1,6 @@
 from time import sleep
 from picamera import PiCamera
+from picamera.array import PiRGBArray
 import os
 
 
@@ -8,6 +9,14 @@ class Camera:
     def __init__(self) -> None:
         self.camera = PiCamera()
         self.cameraResolution = (1024, 768)
+        self.cameraFrameRate = 32
+        self.camera.framerate = self.cameraFrameRate
+        self.camera.resolution = self.cameraResolution
+        self.rawCapture = PiRGBArray(self.camera)
+        
+        #all camera to warmup
+        sleep(0.1)
+
         self.videoRecordingStarted = False
 
     def captureRawImage(self, outputDirectory, outputFileName, exposure=1.5):

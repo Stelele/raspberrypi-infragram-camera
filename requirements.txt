@@ -8,3 +8,4 @@ ffmpeg-python
 exif
 flask
 pyngrok
+opencv-python
