@@ -27,7 +27,11 @@ def dirListing(req_path):
 
     # show directory contents
     files = os.listdir(absPath)
-    return render_template("files.html", files=files)
+
+    prevFolder = "/".join(req_path.split("/")[:-1])
+    prevFolder = "/files" + ("/" if prevFolder != "" else "") + prevFolder
+
+    return render_template("files.html", files=files, prev=prevFolder)
 
 
 if __name__ == "__main__":

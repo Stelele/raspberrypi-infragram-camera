@@ -1,13 +1,21 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<ul>
-    {% for file in files %}
-    <li>
-        <a href="{{ (request.path + '/' if request.path != '/' else '') + file }}">
-            {{ (request.path + '/' if request.path != '/' else '') + file }}
-        </a>
-    </li>
-    {% endfor %}
-</ul>
+    <div class="container d-flex align-items-center flex-column">
+        {% if request.path != '/' %}
+            <p class="masthead-subheading font-weight-light mb-0">
+                <a style="color: inherit; text-decoration: inherit;" href="{{ prev }}">
+                    {{ prev }}
+                </a>
+            </p>
+        {% endif %}
+
+        {% for file in files %}
+            <p class="masthead-subheading font-weight-light mb-0">
+                <a style="color: inherit; text-decoration: inherit;" href="{{ (request.path + '/' if request.path != '/' else '') + file }}">
+                    {{ (request.path + '/' if request.path != '/' else '') + file }}
+                </a>
+            </p>
+        {% endfor %}
+    </div>
 {% endblock %}
