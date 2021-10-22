@@ -2,15 +2,16 @@ from runner import Runner
 from flask import Flask, render_template, send_file, Response
 from pyngrok import ngrok
 from time import sleep
-from picamera import PiCamera
-from picamera.array import PiRGBArray
+import matplotlib.pyplot as plt
+import numpy as np
 import os
 import cv2
+import io
 
 
 app = Flask(__name__)
 runner = Runner()
-
+bufferFrames = []
 liveStreamOn = False
 
 @app.route("/")
@@ -49,7 +50,9 @@ def dirListing(req_path):
 def live():
     global liveStreamOn
     liveStreamOn = True
-    runner.getGPSData()
+    if not runner.positionFixed:
+        runner.getGPSData()
+
     return render_template("live_stream.html", coordinates=runner.convertToGPSDecimal())
 
 @app.route('/video_feed')
@@ -58,8 +61,13 @@ def video_feed():
 
 def gen_frames(): 
     global liveStreamOn
+    global bufferFrames
     
-    for foo in runner.camera.capture_continuous(runner.rawCapture , format="bgr", use_video_port=True):
+    for count,foo in enumerate(runner.camera.capture_continuous(runner.rawCapture , format="bgr", use_video_port=True)):
+        
+        if count % runner.cameraFrameRate == 0:
+            bufferFrames.append(foo.array)
+
         ret, buffer = cv2.imencode('.jpg', foo.array)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
@@ -70,7 +78,38 @@ def gen_frames():
 
         if not liveStreamOn:
             break
-       
+
+@app.route('/ndvi_feed')
+def ndvi_feed():
+    return Response(gen_ndvi_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+def gen_ndvi_frames():
+    global liveStreamOn
+    global bufferFrames
+    
+    fig, ax = plt.subplots(1,1)
+    firstRun = True
+
+    while liveStreamOn:
+        if(len(bufferFrames) > 0):
+
+            image = bufferFrames.pop(0)
+            processedImage = runner.performNDVIOperation(image, format="BGR")
+
+            im = ax.imshow(processedImage)
+
+            if firstRun:
+                firstRun = False
+                fig.colorbar(im)
+
+        
+            ioBuff = io.BytesIO()
+            fig.savefig(ioBuff, format='png')
+            ioBuff.seek(0)
+
+            yield (b'--frame\r\n'
+                    b'Content-Type: image/png\r\n\r\n' + ioBuff.read() + b'\r\n')  # concat frame one by one and show result
+
 
 if __name__ == "__main__":
     httpTunnel = ngrok.connect(addr=5000)
