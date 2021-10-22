@@ -45,7 +45,7 @@ class GPS:
 
 
 
-    def getData(self):
+    def getGPSData(self):
 
         data = ""
         self.runStart = True
@@ -104,9 +104,16 @@ class GPS:
 
 
 
-    def stop(self):
-        self.runStart = False
-        self.endConnection()
+    def convertToGPSDecimal(self):
+        latNum = self.latitude["degrees"] + \
+                    (self.latitude["minutes"]/60) + \
+                    (self.latitude["seconds"]/3600)
+
+        longNum = self.longitude["degrees"] + \
+                    (self.longitude["minutes"]/60) + \
+                    (self.longitude["seconds"]/3600)
+
+        return [f"{latNum} {self.latitude['ref']}", f"{longNum} {self.longitude['ref']}"]
 
 
 if __name__ == "__main__":
@@ -115,7 +122,7 @@ if __name__ == "__main__":
 
     for i in range(10):
         print(f"============Iteration {i}===============")
-        test.getData()
+        test.getGPSData()
         print("==========================================")
         
 

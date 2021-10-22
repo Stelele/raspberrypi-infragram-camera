@@ -4,8 +4,31 @@
 <div class="container">
     <div class="row">
         <div class="col-lg-8  offset-lg-2">
-            <h3 class="mt-5">Live Streaming</h3>
-            <img src="{{ url_for('video_feed') }}" width="100%">
+            <h1 class="masthead-heading text-uppercase mb-0">Live Stream</h1>
+                <!-- Icon Divider-->
+                <div class="divider-custom divider-light">
+                    <div class="divider-custom-line"></div>
+                    <div class="divider-custom-icon"><i class="fas fa-star"></i></div>
+                    <div class="divider-custom-line"></div>
+                </div>
+                <!-- Masthead Subheading-->
+                <p class="masthead-subheading font-weight-light mb-0">Latitude : {{ coordinates[0] }}</p>
+                <p class="masthead-subheading font-weight-light mb-0">Longitude: {{ coordinates[1] }}</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <!-- Portfolio Item 1-->
+        <div class="col-md-6 col-lg-4 mb-5">
+            <div class="portfolio-item mx-auto" data-bs-toggle="modal" data-bs-target="#portfolioModal1">
+                <img class="img-fluid" src="{{ url_for('video_feed')}}" />
+            </div>
+        </div>
+        <!-- Portfolio Item 2-->
+        <div class="col-md-6 col-lg-4 mb-5">
+            <div class="portfolio-item mx-auto" data-bs-toggle="modal" data-bs-target="#portfolioModal2">
+                <img class="img-fluid" src="{{url_for('static',filename='assets/img/portfolio/cake.png')}}" alt="..." />
+            </div>
         </div>
     </div>
 </div>

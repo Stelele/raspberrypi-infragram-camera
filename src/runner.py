@@ -13,21 +13,7 @@ class Runner(Camera, GPS, NDVI):
 
     def tagNDVIImage(self, inputImage):
         print("getting GPS data")
-        self.getData()
-        # self.latitude = {
-        #     "degrees": 33.0,
-        #     "minutes": 23,
-        #     "seconds":1.83,
-        #     "ref":"S"
-        # }
-        # self.longitude = {
-        #     "degrees": 18.0,
-        #     "minutes": 23,
-        #     "seconds":1.83,
-        #     "ref":"E"
-        # }
-
-        # self.positionFixed = True
+        self.getGPSData()
 
         with open(inputImage, "rb") as img:
             fileImage = Image(img)

@@ -15,6 +15,7 @@ liveStreamOn = False
 
 @app.route("/")
 def home():
+    global liveStreamOn
     liveStreamOn = False
     return render_template("index.html")
 
@@ -48,7 +49,8 @@ def dirListing(req_path):
 def live():
     global liveStreamOn
     liveStreamOn = True
-    return render_template("live_stream.html")
+    runner.getGPSData()
+    return render_template("live_stream.html", coordinates=runner.convertToGPSDecimal())
 
 @app.route('/video_feed')
 def video_feed():
@@ -81,4 +83,5 @@ if __name__ == "__main__":
 
     finally:
         runner.endConnection()
+        runner.camera.close()
     
