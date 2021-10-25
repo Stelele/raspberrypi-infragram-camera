@@ -13,8 +13,8 @@ class Camera:
         self.camera.framerate = self.cameraFrameRate
         self.camera.resolution = self.cameraResolution
         self.rawCapture = PiRGBArray(self.camera)
-        
-        #all camera to warmup
+
+        # all camera to warmup
         sleep(0.1)
 
         self.videoRecordingStarted = False
@@ -23,18 +23,20 @@ class Camera:
         self.camera.resolution = self.cameraResolution
         self.camera.start_preview()
         sleep(exposure)
-        self.camera.capture(f"{outputDirectory}/{outputFileName}.rgb","rgb")
+        self.camera.capture(f"{outputDirectory}/{outputFileName}.rgb", "rgb")
 
     def convertRawToJPG(self, inputFile, outputDirectory, outputFileName):
-        imageResolution = "x".join(map(str,self.cameraResolution))
-        os.system(f"convert -size \"{imageResolution}\" -depth 8 -crop \"{imageResolution}\" {inputFile} {outputDirectory}/{outputFileName}.jpg")
+        imageResolution = "x".join(map(str, self.cameraResolution))
+        os.system(
+            f"convert -size \"{imageResolution}\" -depth 8 -crop \"{imageResolution}\" {inputFile} {outputDirectory}/{outputFileName}.jpg")
 
-    def recordVideoFor (self, outputDirectory, outputFileName, length = 60, videoType='h264'): 
+    def recordVideoFor(self, outputDirectory, outputFileName, length=60, videoType='h264'):
         self.camera.stop_preview()
         self.camera.resolution = self.cameraResolution
         self.videoRecordingStarted = True
 
-        self.camera.start_recording(f"{outputDirectory}/{outputFileName}.{videoType}")
+        self.camera.start_recording(
+            f"{outputDirectory}/{outputFileName}.{videoType}")
         self.camera.wait_recording(length)
         self.camera.stop_recording()
 
@@ -46,31 +48,35 @@ class Camera:
 
         self.videoRecordingStarted = True
 
-        self.camera.start_recording(f"{outputDirectory}/{outputFileName}.{videoType}")
+        self.camera.start_recording(
+            f"{outputDirectory}/{outputFileName}.{videoType}")
 
     def stopVideoRording(self):
         if self.videoRecordingStarted:
             self.camera.stop_recording()
 
+
 if __name__ == "__main__":
     test = Camera()
 
-    rawImageDirectory = "/".join(os.path.abspath("output/images/raw/_empty").split("/")[:-1])
-    jpgImageDirectory = "/".join(os.path.abspath("output/images/jpg/_empty").split("/")[:-1])
-    rawVideoDirectory = "/".join(os.path.abspath("output/videos/raw/_empty").split("/")[:-1])
-
+    rawImageDirectory = "/".join(os.path.abspath(
+        "output/images/raw/_empty").split("/")[:-1])
+    jpgImageDirectory = "/".join(os.path.abspath(
+        "output/images/jpg/_empty").split("/")[:-1])
+    rawVideoDirectory = "/".join(os.path.abspath(
+        "output/videos/raw/_empty").split("/")[:-1])
 
     takePhoto = False
-    
+
     if takePhoto:
         baseName = "rgbIRcalibration1"
-        exposure=2
-        outputName = baseName + "_" + str(exposure).replace(".","_")
+        exposure = 2
+        outputName = baseName + "_" + str(exposure).replace(".", "_")
 
-        test.captureRawImage(rawImageDirectory, outputName,exposure)
+        test.captureRawImage(rawImageDirectory, outputName, exposure)
 
-        test.convertRawToJPG(f"{rawImageDirectory}/{outputName}.rgb", jpgImageDirectory, outputName)
+        test.convertRawToJPG(
+            f"{rawImageDirectory}/{outputName}.rgb", jpgImageDirectory, outputName)
 
     else:
         test.recordVideoFor(rawVideoDirectory, "IRcalibration")
-

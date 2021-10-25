@@ -6,36 +6,42 @@ import matplotlib.pyplot as plt
 import os
 import ffmpeg
 
+
 class NDVI:
 
     def __init__(self) -> None:
-        self.imageWidth  = 1024
+        self.imageWidth = 1024
         self.imageHeight = 768
-        self.outputImageDirectory  = "/".join(os.path.abspath("output/images/processed/_empty").split("/")[:-1])
-        self.rawImageDirectory     = "/".join(os.path.abspath("output/images/raw/_empty").split("/")[:-1])
-        self.rawVideoDirectory     =  "/".join(os.path.abspath("output/videos/raw/_empty").split("/")[:-1])
-        self.outputVideoDirectory  = "/".join(os.path.abspath("output/videos/processed/_empty").split("/")[:-1])
+        self.outputImageDirectory = "/".join(os.path.abspath(
+            "output/images/processed/_empty").split("/")[:-1])
+        self.rawImageDirectory = "/".join(os.path.abspath(
+            "output/images/raw/_empty").split("/")[:-1])
+        self.rawVideoDirectory = "/".join(os.path.abspath(
+            "output/videos/raw/_empty").split("/")[:-1])
+        self.outputVideoDirectory = "/".join(os.path.abspath(
+            "output/videos/processed/_empty").split("/")[:-1])
 
     def analyzeImage(self, inputImage, outputFileName, mode=0):
 
         if mode == 0:
             imageFile = open(inputImage, "r+b")
-            image = np.fromfile(imageFile, dtype=np.uint8).reshape((self.imageHeight, self.imageWidth, 3))
+            image = np.fromfile(imageFile, dtype=np.uint8).reshape(
+                (self.imageHeight, self.imageWidth, 3))
         else:
             iImage = Image.open(inputImage)
             image = np.asarray(iImage)
 
-        
         outputImage = self.performNDVIOperation(image, mode=mode, format="RGB")
 
-        fig, ax = plt.subplots(1,1)
+        fig, ax = plt.subplots(1, 1)
         im = ax.imshow(outputImage)
         fig.colorbar(im)
         plt.savefig(f"{self.outputImageDirectory}/{outputFileName}.jpg")
 
     def analyzeVideo(self, inputVideo, outputFileName, mode=0):
         probe = ffmpeg.probe(inputVideo)
-        videoStream = next((stream for stream in probe["streams"] if stream["codec_type"] == "video"), None)
+        videoStream = next(
+            (stream for stream in probe["streams"] if stream["codec_type"] == "video"), None)
         width = int(videoStream["width"])
         height = int(videoStream["height"])
 
@@ -52,11 +58,10 @@ class NDVI:
             .reshape((-1, height, width, 3))
         )
 
-        fig, ax = plt.subplots(1,1)
+        fig, ax = plt.subplots(1, 1)
         for i in range(video.shape[0]):
             outputImage = self.performNDVIOperation(video[i])
 
-            
             im = ax.imshow(outputImage)
 
             if i == 0:
@@ -64,7 +69,6 @@ class NDVI:
 
             plt.savefig(f"{self.outputVideoDirectory}/{i}.jpg")
 
-        
     def createVideo(self):
         (
             ffmpeg
@@ -74,54 +78,71 @@ class NDVI:
         )
 
     def performNDVIOperation(self, inputArray, mode=0, format="RGB"):
-        redChannel   = np.array(inputArray[:, :, 0 if format == "RGB" else 2].tolist())
+        redChannel = np.array(
+            inputArray[:, :, 0 if format == "RGB" else 2].tolist())
         greenChannel = np.array(inputArray[:, :, 1].tolist())
-        blueChannel  = np.array(inputArray[:, :, 2 if format == "RGB" else 1].tolist())
-        outputImage  = np.zeros((self.imageHeight, self.imageWidth))
+        blueChannel = np.array(
+            inputArray[:, :, 2 if format == "RGB" else 1].tolist())
+        outputImage = np.zeros((self.imageHeight, self.imageWidth))
 
         if mode == 0:
-            redChannel  = 0.0299 * np.exp(0.0073  * (redChannel  + greenChannel))
-            blueChannel = 0.019  * np.exp(0.0049  * (blueChannel + greenChannel))
+            redChannel = 0.0299 * np.exp(0.0073 * (redChannel + greenChannel))
+            blueChannel = 0.019 * np.exp(0.0049 * (blueChannel + greenChannel))
 
-            outputImage = (redChannel - blueChannel) / (redChannel + blueChannel)
+            outputImage = (redChannel - blueChannel) / \
+                (redChannel + blueChannel)
 
         elif mode == 1:
-            redChannel   = (redChannel - redChannel.min()) / (redChannel.max() - redChannel.min())
-            greenChannel = (greenChannel - greenChannel.min()) / (greenChannel.max() - greenChannel.min())
-            blueChannel  = (blueChannel - blueChannel.min()) / (blueChannel.max() - blueChannel.min())
+            redChannel = (redChannel - redChannel.min()) / \
+                (redChannel.max() - redChannel.min())
+            greenChannel = (greenChannel - greenChannel.min()) / \
+                (greenChannel.max() - greenChannel.min())
+            blueChannel = (blueChannel - blueChannel.min()) / \
+                (blueChannel.max() - blueChannel.min())
 
-            redChannel   = np.power((redChannel   + 0.055)/1.055,2.4)
-            greenChannel = np.power((greenChannel + 0.055)/1.055,2.4)
-            blueChannel  = np.power((blueChannel  + 0.055)/1.055, 2.4)
+            redChannel = np.power((redChannel + 0.055)/1.055, 2.4)
+            greenChannel = np.power((greenChannel + 0.055)/1.055, 2.4)
+            blueChannel = np.power((blueChannel + 0.055)/1.055, 2.4)
 
-            transformation = np.array([[ -0.6168006001,  3.0321120793, -1.4276396748, 0.0494551008], \
-                                        [-2.2981037998,  4.6453775652, -1.0628372695, 0.0485266687], \
-                                        [-1.1373381041,  1.5107568513,  2.1166395585, 0.047374911], \
-                                        [ 0.6987241741,  0.5488395299,  0.1258244845, 0.2757884897]])
+            transformation = np.array([[-0.6168006001,  3.0321120793, -1.4276396748, 0.0494551008],
+                                       [-2.2981037998,  4.6453775652, -
+                                           1.0628372695, 0.0485266687],
+                                       [-1.1373381041,  1.5107568513,
+                                           2.1166395585, 0.047374911],
+                                       [0.6987241741,  0.5488395299,  0.1258244845, 0.2757884897]])
 
             newImage = np.zeros((redChannel.shape[0], redChannel.shape[1], 4))
 
-            for i in range(0,4,3):
-                newImage[:,:,i] = transformation[i][0] * redChannel + transformation[i][1] * greenChannel + transformation[i][2] * blueChannel + transformation[i][3]
+            for i in range(0, 4, 3):
+                newImage[:, :, i] = transformation[i][0] * redChannel + transformation[i][1] * \
+                    greenChannel + transformation[i][2] * \
+                    blueChannel + transformation[i][3]
 
-            outputImage = (newImage[:,:,0] - newImage[:,:,3])/(newImage[:,:,0] + newImage[:,:,3])
-        
+            outputImage = (newImage[:, :, 0] - newImage[:, :, 3]) / \
+                (newImage[:, :, 0] + newImage[:, :, 3])
+
         elif mode == 2:
             outputImage = ((1.664 * blueChannel)/(0.953 * redChannel)) - 1
 
         else:
-            outputImage = (redChannel - blueChannel) / (redChannel + blueChannel)
+            outputImage = (redChannel - blueChannel) / \
+                (redChannel + blueChannel)
 
-        #normalize data
-        outputImage = (outputImage - outputImage.min()) / (outputImage.max() - outputImage.min())
+        # normalize data
+        outputImage = (outputImage - outputImage.min()) / \
+            (outputImage.max() - outputImage.min())
 
         return outputImage
 
+
 if __name__ == "__main__":
     test = NDVI()
-    rawImageDirectory = "/".join(os.path.abspath("output/images/raw/_empty").split("/")[:-1])
-    jpgImageDirectory = "/".join(os.path.abspath("output/images/jpg/_empty").split("/")[:-1])
-    rawVideoDirectory = "/".join(os.path.abspath("output/videos/raw/_empty").split("/")[:-1])
+    rawImageDirectory = "/".join(os.path.abspath(
+        "output/images/raw/_empty").split("/")[:-1])
+    jpgImageDirectory = "/".join(os.path.abspath(
+        "output/images/jpg/_empty").split("/")[:-1])
+    rawVideoDirectory = "/".join(os.path.abspath(
+        "output/videos/raw/_empty").split("/")[:-1])
 
     analyzeImage = False
 
@@ -129,21 +150,17 @@ if __name__ == "__main__":
         NDVIMode = 0
         baseName = "rgbBluecalibration1"
         exposure = 2
-        fileName = baseName + "_" + str(exposure).replace(".","_")
-        #test.calibrate()
+        fileName = baseName + "_" + str(exposure).replace(".", "_")
+        # test.calibrate()
 
         if NDVIMode == 0:
-            test.analyzeImage(f"{rawImageDirectory}/{fileName}.rgb", fileName + "_m"+str(NDVIMode))
+            test.analyzeImage(
+                f"{rawImageDirectory}/{fileName}.rgb", fileName + "_m"+str(NDVIMode))
         else:
-            test.analyzeImage(f"{jpgImageDirectory}/{fileName}.jpg", fileName + "_m"+str(NDVIMode),NDVIMode)
+            test.analyzeImage(f"{jpgImageDirectory}/{fileName}.jpg",
+                              fileName + "_m"+str(NDVIMode), NDVIMode)
 
     else:
 
         #test.analyzeVideo(f"{rawVideoDirectory}/smallBluecalibration.mp4", "test")
         test.createVideo()
-    
-
-
-
-
-

@@ -14,13 +14,15 @@ runner = Runner()
 bufferFrames = []
 liveStreamOn = False
 
+
 @app.route("/")
 def home():
     global liveStreamOn
     liveStreamOn = False
     return render_template("index.html")
 
-@app.route("/files", defaults={"req_path":""})
+
+@app.route("/files", defaults={"req_path": ""})
 @app.route("/files/<path:req_path>")
 def dirListing(req_path):
     global liveStreamOn
@@ -46,6 +48,7 @@ def dirListing(req_path):
 
     return render_template("files.html", files=files, prev=prevFolder)
 
+
 @app.route("/live_stream")
 def live():
     global liveStreamOn
@@ -55,23 +58,25 @@ def live():
 
     return render_template("live_stream.html", coordinates=runner.convertToGPSDecimal())
 
+
 @app.route('/video_feed')
 def video_feed():
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-def gen_frames(): 
+
+def gen_frames():
     global liveStreamOn
     global bufferFrames
-    
-    for count,foo in enumerate(runner.camera.capture_continuous(runner.rawCapture , format="bgr", use_video_port=True)):
-        
+
+    for count, foo in enumerate(runner.camera.capture_continuous(runner.rawCapture, format="bgr", use_video_port=True)):
+
         if count % runner.cameraFrameRate == 0:
             bufferFrames.append(foo.array)
 
         ret, buffer = cv2.imencode('.jpg', foo.array)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')  # concat frame one by one and show result
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')  # concat frame one by one and show result
 
         # clear stream to get ready for next frame
         runner.rawCapture.seek(0)
@@ -79,15 +84,17 @@ def gen_frames():
         if not liveStreamOn:
             break
 
+
 @app.route('/ndvi_feed')
 def ndvi_feed():
     return Response(gen_ndvi_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+
 def gen_ndvi_frames():
     global liveStreamOn
     global bufferFrames
-    
-    fig, ax = plt.subplots(1,1)
+
+    fig, ax = plt.subplots(1, 1)
     firstRun = True
 
     while liveStreamOn:
@@ -102,13 +109,12 @@ def gen_ndvi_frames():
                 firstRun = False
                 fig.colorbar(im)
 
-        
             ioBuff = io.BytesIO()
             fig.savefig(ioBuff, format='png')
             ioBuff.seek(0)
 
             yield (b'--frame\r\n'
-                    b'Content-Type: image/png\r\n\r\n' + ioBuff.read() + b'\r\n')  # concat frame one by one and show result
+                   b'Content-Type: image/png\r\n\r\n' + ioBuff.read() + b'\r\n')  # concat frame one by one and show result
 
 
 if __name__ == "__main__":
@@ -123,4 +129,3 @@ if __name__ == "__main__":
     finally:
         runner.endConnection()
         runner.camera.close()
-    

@@ -1,21 +1,22 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <div class="container d-flex align-items-center flex-column">
-        {% if request.path != '/files' %}
-            <p class="masthead-subheading font-weight-light mb-0">
-                <a style="color: inherit; text-decoration: inherit;" href="{{ prev }}">
-                    {{ prev }}
-                </a>
-            </p>
-        {% endif %}
+<div class="container d-flex align-items-center flex-column">
+    {% if request.path != '/files' %}
+    <p class="masthead-subheading font-weight-light mb-0">
+        <a style="color: inherit; text-decoration: inherit;" href="{{ prev }}">
+            {{ prev }}
+        </a>
+    </p>
+    {% endif %}
 
-        {% for file in files %}
-            <p class="masthead-subheading font-weight-light mb-0">
-                <a style="color: inherit; text-decoration: inherit;" href="{{ (request.path + '/' if request.path != '/' else '') + file }}">
-                    {{ (request.path + '/' if request.path != '/' else '') + file }}
-                </a>
-            </p>
-        {% endfor %}
-    </div>
+    {% for file in files %}
+    <p class="masthead-subheading font-weight-light mb-0">
+        <a style="color: inherit; text-decoration: inherit;"
+            href="{{ (request.path + '/' if request.path != '/' else '') + file }}">
+            {{ (request.path + '/' if request.path != '/' else '') + file }}
+        </a>
+    </p>
+    {% endfor %}
+</div>
 {% endblock %}
