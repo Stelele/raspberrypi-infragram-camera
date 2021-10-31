@@ -8,15 +8,24 @@ import os
 import cv2
 import io
 
-
+# setup variable for starting Flask webserver
 app = Flask(__name__)
+
+# setup variable for instance of Runner class
 runner = Runner()
+
+# setup variable to temporarily store live stream video frames
 bufferFrames = []
+
+# setup variable to indicate if on livestream page or not
 liveStreamOn = False
 
 
 @app.route("/")
 def home():
+    '''
+        Serve home page
+    '''
     global liveStreamOn
     liveStreamOn = False
     return render_template("index.html")
@@ -25,6 +34,9 @@ def home():
 @app.route("/files", defaults={"req_path": ""})
 @app.route("/files/<path:req_path>")
 def dirListing(req_path):
+    '''
+        Serve page for viewing photo and video fies on local raspberry Pi output folder
+    '''
     global liveStreamOn
     liveStreamOn = False
 
@@ -51,6 +63,9 @@ def dirListing(req_path):
 
 @app.route("/live_stream")
 def live():
+    '''
+        Serve page for viewing live stream video feed
+    '''
     global liveStreamOn
     liveStreamOn = True
     if not runner.positionFixed:
@@ -61,19 +76,25 @@ def live():
 
 @app.route('/video_feed')
 def video_feed():
+    '''
+        sets up page for sending of unprocessed video frames
+    '''
     return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 def gen_frames():
+    '''
+        This function continuously sends unproceessed video frames
+    '''
     global liveStreamOn
     global bufferFrames
 
-    for count, foo in enumerate(runner.camera.capture_continuous(runner.rawCapture, format="bgr", use_video_port=True)):
+    for count, recframe in enumerate(runner.camera.capture_continuous(runner.rawCapture, format="bgr", use_video_port=True)):
 
         if count % runner.cameraFrameRate == 0:
-            bufferFrames.append(foo.array)
+            bufferFrames.append(recframe.array)
 
-        ret, buffer = cv2.imencode('.jpg', foo.array)
+        ret, buffer = cv2.imencode('.jpg', recframe.array)
         frame = buffer.tobytes()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')  # concat frame one by one and show result
@@ -87,10 +108,16 @@ def gen_frames():
 
 @app.route('/ndvi_feed')
 def ndvi_feed():
+    '''
+        sets up page for sending ndvi video frames
+    '''
     return Response(gen_ndvi_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 def gen_ndvi_frames():
+    '''
+        This function continuously sends ndvi video frames
+    '''
     global liveStreamOn
     global bufferFrames
 

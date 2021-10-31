@@ -7,6 +7,8 @@ $(VENV): requirements.txt
 	
 clean:
 	rm -rf src/__pycache__ venv
-	find . -name "*.rgb" -type f -delete
-	find . -name "*.jpg" -type f -delete
-	find . -name "*.png" -type f -delete
+	find . -wholename "./output/**/*.rgb" -type f -delete
+	find . -wholename "./output/**/*.jpg" -type f -delete
+	find . -wholename "./output/**/*.png" -type f -delete
+	find . -wholename "./output/**/*.h264" -type f -delete
+	find . -wholename "./output/**/*.mp4" -type f -delete
