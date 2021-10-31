@@ -1,10 +1,9 @@
 from PIL import Image
-from camera import Camera
-from time import sleep
 import numpy as np
 import matplotlib.pyplot as plt
 import os
 import ffmpeg
+import time
 
 
 class NDVI:
@@ -189,7 +188,9 @@ class NDVI:
 
         # process array using Unoptimized Direct NDVI implementation
         elif mode == 3:
-            pass
+            for row  in range(redChannel.shape[0]):
+                for col in range(redChannel.shape[1]):
+                    outputImage[row][col] = (redChannel[row][col] - blueChannel[row][col]) / (redChannel[row][col] + blueChannel[row][col])
         
         # process array using Optimized Direct NDVI implementation
         else:
@@ -214,21 +215,29 @@ if __name__ == "__main__":
     rawVideoDirectory = "/".join(os.path.abspath(
         "output/videos/raw/_empty").split("/")[:-1])
 
-    analyzeImage = False
+    analyzeImage = True
 
     if analyzeImage:
-        NDVIMode = 0
+        NDVIMode = 4
         baseName = "rgbBluecalibration1"
         exposure = 2
         fileName = baseName + "_" + str(exposure).replace(".", "_")
-        # test.calibrate()
 
-        if NDVIMode == 0:
-            test.analyzeImage(
-                f"{rawImageDirectory}/{fileName}.rgb", fileName + "_m"+str(NDVIMode))
-        else:
-            test.analyzeImage(f"{jpgImageDirectory}/{fileName}.jpg",
-                              fileName + "_m"+str(NDVIMode), NDVIMode)
+        for i in range(6):
+            print(f"==================Iteration {i}====================")
+            if NDVIMode == 0:
+                start = time.time()
+                test.analyzeImage(
+                    f"{rawImageDirectory}/{fileName}.rgb", fileName + "_m"+str(NDVIMode), mode=NDVIMode)
+                end = time.time()
+            else:
+                start = time.time()
+                test.analyzeImage(f"{jpgImageDirectory}/{fileName}.jpg",
+                                fileName + "_m"+str(NDVIMode), NDVIMode)
+                end = time.time()
+
+            print(f"Run took {end - start} seconds")
+            print("======================================================")
 
     else:
 

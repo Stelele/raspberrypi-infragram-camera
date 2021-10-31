@@ -113,17 +113,17 @@ if __name__ == "__main__":
     rawVideoDirectory = "/".join(os.path.abspath(
         "output/videos/raw/_empty").split("/")[:-1])
 
-    takePhoto = False
+    takePhoto = True
 
     if takePhoto:
-        baseName = "rgbIRcalibration1"
+        baseName = "rgbBluecalibration1"
         exposure = 2
         outputName = baseName + "_" + str(exposure).replace(".", "_")
 
         test.captureRawImage(rawImageDirectory, outputName, exposure)
-
         test.convertRawToJPG(
             f"{rawImageDirectory}/{outputName}.rgb", jpgImageDirectory, outputName)
 
     else:
         test.recordVideoFor(rawVideoDirectory, "IRcalibration")
+        test.convertVideoToMP4(f"{rawVideoDirectory}/IRcalibration.h264", rawVideoDirectory, "test")
