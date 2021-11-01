@@ -218,9 +218,9 @@ if __name__ == "__main__":
     analyzeImage = True
 
     if analyzeImage:
-        NDVIMode = 4
+        NDVIMode = -1
         baseName = "rgbBluecalibration1"
-        exposure = 2
+        exposure = 0.6
         fileName = baseName + "_" + str(exposure).replace(".", "_")
 
         for i in range(6):

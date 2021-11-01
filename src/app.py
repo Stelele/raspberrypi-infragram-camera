@@ -91,7 +91,7 @@ def gen_frames():
 
     for count, recframe in enumerate(runner.camera.capture_continuous(runner.rawCapture, format="bgr", use_video_port=True)):
 
-        if count % runner.cameraFrameRate == 0:
+        if count % (runner.cameraFrameRate * 3) == 0:
             bufferFrames.append(recframe.array)
 
         ret, buffer = cv2.imencode('.jpg', recframe.array)
@@ -103,6 +103,7 @@ def gen_frames():
         runner.rawCapture.seek(0)
 
         if not liveStreamOn:
+            bufferFrames = []
             break
 
 

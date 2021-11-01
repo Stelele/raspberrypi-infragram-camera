@@ -7,3 +7,4 @@ output/**/*.rgb
 output/**/*.png
 output/**/*.h264
 output/**/*.mp4
+output/**/*.raw
