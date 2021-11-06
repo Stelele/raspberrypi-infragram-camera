@@ -1,4 +1,6 @@
 # Raspberry Pi Based InfragramCamera for Agricultural Applications
+## _By Gift Isheunopa Taurai Mugweni_
+
 
 This repository contains Python code that was written for an undergraduate final-year project (EEE4022S) at
 the University of Cape Town. The aim of the project was to design and build a low-cost Raspberry Pi based 
