@@ -71,7 +71,8 @@ class GPS:
             
             # obtain output from serial interface
             while self.ser.inWaiting() > 0:
-                data += self.ser.read(self.ser.inWaiting()).decode("utf-8")
+                temp = self.ser.read(self.ser.inWaiting())
+                data += temp.decode("utf-8")
 
             if data != "":
                 #locate section of output with NMEA GNRMC format i.e. Time, date, position, course and speed 

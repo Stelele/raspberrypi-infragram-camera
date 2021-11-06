@@ -116,7 +116,7 @@ if __name__ == "__main__":
     takePhoto = True
 
     if takePhoto:
-        baseName = "rgbBluecalibration1"
+        baseName = "rgbBluecalibration5"
         exposure = 2
         outputName = baseName + "_" + str(exposure).replace(".", "_")
 

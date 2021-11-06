@@ -4,6 +4,9 @@ PIP=./venv/bin/pip
 $(VENV): requirements.txt
 	python3 -m venv venv
 	$(PIP) install -r requirements.txt
+
+run:
+	python src/app.py
 	
 clean:
 	rm -rf src/__pycache__ venv
